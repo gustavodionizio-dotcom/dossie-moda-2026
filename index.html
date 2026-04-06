@@ -533,27 +533,8 @@
             });
         });
 
-        // --- GEMINI API INTEGRATION ---
-        const apiKey = "AIzaSyDIKOhFP-9f_pAaXImifngLxsrm9we-zTM";
-
-        // Exponential backoff retry logic
-        async function fetchWithRetry(url, options, retries = 5) {
-            let delay = 1000;
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(url, options);
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        throw new Error(`HTTP error! status: ${response.status}`, { cause: errorData });
-                    }
-                    return await response.json();
-                } catch (error) {
-                    if (i === retries - 1) throw error;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2; // Exponential backoff (1s, 2s, 4s, 8s, 16s)
-                }
-            }
-        }
+        // --- GROQ API INTEGRATION ---
+        const apiKey = "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";
 
         async function generateBuyerAdvice() {
             const inputEl = document.getElementById('occasion-input');
@@ -587,20 +568,25 @@ Estruture sua resposta assim:
 
 Responda em Português do Brasil de forma encorajadora, profissional e voltada para o business (vendas e conversão).`;
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: `Cenário / Perfil da Cliente: ${occasion}` }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
-            };
-
             try {
-                const result = await fetchWithRetry(url, {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.3-70b-versatile",
+                        messages: [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: `Cenário / Perfil da Cliente: ${occasion}` }
+                        ],
+                        temperature: 0.7
+                    })
                 });
 
-                const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "Lamentamos, não foi possível gerar uma sugestão neste momento.";
+                const result = await response.json();
+                const textResponse = result.choices?.[0]?.message?.content || "Lamentamos, não foi possível gerar uma sugestão neste momento.";
 
                 // Format basic markdown to HTML
                 const formattedHtml = textResponse
@@ -611,7 +597,7 @@ Responda em Português do Brasil de forma encorajadora, profissional e voltada p
                 resultEl.innerHTML = formattedHtml;
 
             } catch (error) {
-                console.error("Gemini API Error:", error);
+                console.error("Groq API Error:", error);
                 resultEl.innerHTML = '<span class="text-fw-burgundy font-medium">Não foi possível processar a curadoria. Verifique se o ambiente de execução tem acesso à API ou tente novamente mais tarde.</span>';
             } finally {
                 // Restore state
