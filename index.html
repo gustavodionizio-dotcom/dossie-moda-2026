@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossiê de Tendências 2026 | Público AA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Neutrals & Subtle Accents (Off-white, Taupe, Burgundy, Navy, Sand) -->
+
+    <!-- Application Structure Plan:
+    1. Navigation: Sticky header for quick access.
+    2. Hero: Elegant introduction setting the tone for the AA luxury market (inspired by Le Lis Blanc).
+    3. Interactive Seasons Explorer (The Core): A toggle-based section allowing users to switch between Fall/Winter and Spring/Summer. This prevents vertical fatigue and encourages comparative exploration of colors, fabrics, and key pieces.
+    4. Market Insights (Data): A dashboard-style section using Chart.js to show consumer behavior and category investments, providing business intelligence alongside aesthetic trends.
+    This structure separates the 'inspiration' (seasons) from the 'strategy' (data), making it highly digestible for decision-makers. -->
+
+    <!-- Visualization & Content Choices:
+    - Seasons Explorer: Goal: Inform & Compare. Method: JS-driven state toggle (HTML/CSS). Justification: Allows users to actively switch contexts between seasons within the same viewport, emphasizing the shift in trends.
+    - Color Palette: Goal: Inform. Method: Clickable HTML/CSS colored divs. Justification: Interactive tactile feel without needing complex graphics. No SVG used.
+    - Category Investment Chart: Goal: Proportions. Method: Doughnut Chart (Chart.js). Justification: Quickly shows where the AA consumer spends their budget.
+    - Style Evolution Chart: Goal: Trend tracking over time. Method: Line Chart (Chart.js). Justification: Visualizes the rise of sustainable luxury vs traditional seasonal buying. -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'luxury-bg': '#FDFCF8',
+                        'luxury-text': '#2C2A29',
+                        'luxury-accent': '#8C7A6B',
+                        'luxury-border': '#E5E0D8',
+                        'fw-burgundy': '#5C2C35',
+                        'fw-olive': '#4A5340',
+                        'fw-charcoal': '#363940',
+                        'fw-taupe': '#B8A99A',
+                        'ss-cerulean': '#7D9CB3',
+                        'ss-butter': '#F2E8C9',
+                        'ss-sand': '#D9C8B4',
+                        'ss-terracotta': '#C46D5E'
+                    },
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['Lato', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FDFCF8;
+            color: #2C2A29;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .color-swatch {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .color-swatch:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <nav class="fixed w-full bg-luxury-bg/95 backdrop-blur-sm border-b border-luxury-border z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex-shrink-0 font-serif text-2xl tracking-widest uppercase text-luxury-text">
+                    L'Édition <span class="text-luxury-accent text-lg">2026</span>
+                </div>
+                <div class="hidden md:flex space-x-8 text-sm tracking-wide">
+                    <a href="#overview" class="hover:text-luxury-accent transition-colors">Visão Geral</a>
+                    <a href="#collections" class="hover:text-luxury-accent transition-colors">Coleções 2026</a>
+                    <a href="#insights" class="hover:text-luxury-accent transition-colors">Comportamento & Dados</a>
+                    <a href="#ai-buyer" class="hover:text-luxury-accent transition-colors flex items-center">Assistente de Compras IA ✨</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <h1 class="font-serif text-5xl md:text-6xl font-normal leading-tight mb-6">
+            Estratégia de Compras 2026 <br/><i class="text-luxury-accent text-4xl md:text-5xl">Boutique Jardim Camburi</i>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-600 font-light max-w-3xl mx-auto leading-relaxed">
+            Um panorama estratégico das tendências de Outono/Inverno e Primavera/Verão 2026,
+            desenhado exclusivamente para o consumidor classe AA de Vitória - ES. Antecipe as suas compras de coleção
+            e traduza a estética global na realidade climática e no estilo de vida capixaba.
+        </p>
+        <div class="mt-10">
+            <a href="#collections" class="inline-block border border-luxury-text px-8 py-3 text-sm tracking-widest uppercase hover:bg-luxury-text hover:text-white transition-colors duration-300">
+                Explorar Tendências &darr;
+            </a>
+        </div>
+    </header>
+
+    <section id="overview" class="py-16 bg-white border-y border-luxury-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-12 text-center">
+                <h2 class="font-serif text-3xl mb-4">A Essência de 2026</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Nesta seção, contextualizamos a mentalidade do consumidor premium. O foco transita da ostentação para a curadoria, valorizando tecidos nobres, caimento impecável e durabilidade.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <div class="p-8 bg-luxury-bg border border-luxury-border hover:shadow-lg transition-shadow">
+                    <div class="text-3xl text-luxury-accent mb-4">&#10022;</div>
+                    <h3 class="font-serif text-xl mb-3">Minimalismo Quente</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">A paleta fria do minimalismo cede espaço para tons terrosos, texturas acolhedoras e um design que abraça. A elegância reside no conforto absoluto.</p>
+                </div>
+                <div class="p-8 bg-luxury-bg border border-luxury-border hover:shadow-lg transition-shadow">
+                    <div class="text-3xl text-luxury-accent mb-4">&#10022;</div>
+                    <h3 class="font-serif text-xl mb-3">Herança e Alfaiataria</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">O retorno das modelagens clássicas com torções contemporâneas. Blazers estruturados, cortes em viés e uma alfaiataria que transita do escritório para o resort.</p>
+                </div>
+                <div class="p-8 bg-luxury-bg border border-luxury-border hover:shadow-lg transition-shadow">
+                    <div class="text-3xl text-luxury-accent mb-4">&#10022;</div>
+                    <h3 class="font-serif text-xl mb-3">Sustentabilidade Velada</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">A sustentabilidade não é mais um argumento de venda, é um pré-requisito invisível. O cliente AA exige ética na cadeia produtiva sem abrir mão da estética premium.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="collections" class="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="font-serif text-4xl mb-4">Guia de Coleções Interativo</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto mb-10">Explore os direcionamentos táticos para cada temporada. Alternando entre os botões abaixo, você descobrirá a transição sutil de texturas, cores e peças-chave que definirão as vitrines de 2026.</p>
+
+            <div class="inline-flex rounded-md shadow-sm" role="group">
+                <button type="button" id="btn-fw" class="px-8 py-3 text-sm font-medium tracking-wide uppercase border border-luxury-text bg-luxury-text text-white transition-colors" onclick="switchSeason('fw')">
+                    Outono/Inverno '26
+                </button>
+                <button type="button" id="btn-ss" class="px-8 py-3 text-sm font-medium tracking-wide uppercase border border-luxury-text bg-transparent text-luxury-text hover:bg-gray-50 transition-colors" onclick="switchSeason('ss')">
+                    Primavera/Verão '26/27
+                </button>
+            </div>
+        </div>
+
+        <div id="season-content" class="fade-in bg-white p-8 md:p-12 border border-luxury-border shadow-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+                <div class="lg:col-span-5">
+                    <h3 id="season-title" class="font-serif text-3xl mb-2 text-fw-burgundy">O Refúgio Urbano</h3>
+                    <p id="season-subtitle" class="uppercase tracking-widest text-xs text-luxury-accent mb-6">Outono / Inverno 2026</p>
+                    <p id="season-desc" class="text-gray-600 leading-relaxed mb-8">
+                        Para o Inverno 2026, a mulher AA busca um "casulo sofisticado". A ênfase está na sobreposição inteligente (layering) utilizando materiais de altíssimo padrão. A inspiração vem das raízes equestres e do country club chic, fundidos com a praticidade metropolitana.
+                    </p>
+
+                    <h4 class="font-serif text-xl mb-4 border-b border-luxury-border pb-2">Materiais & Texturas</h4>
+                    <ul id="season-materials" class="space-y-3 text-gray-700">
+                        <li class="flex items-start"><span class="text-luxury-accent mr-2">&#9679;</span> Cashmere double-face de alta gramatura</li>
+                        <li class="flex items-start"><span class="text-luxury-accent mr-2">&#9679;</span> Couro pelica super macio (nappa leather)</li>
+                        <li class="flex items-start"><span class="text-luxury-accent mr-2">&#9679;</span> Tweed estruturado com fios metalizados discretos</li>
+                        <li class="flex items-start"><span class="text-luxury-accent mr-2">&#9679;</span> Tricôs de tramas espessas (Chunky knits)</li>
+                    </ul>
+                </div>
+
+                <div class="lg:col-span-7 space-y-10">
+                    <div>
+                        <h4 class="font-serif text-xl mb-4 flex items-center justify-between">
+                            Paleta de Cores
+                            <span id="color-name-display" class="text-sm font-sans text-gray-500 italic">Clique em uma cor</span>
+                        </h4>
+                        <div id="season-colors" class="grid grid-cols-4 gap-4 h-32">
+                            <div class="color-swatch bg-fw-burgundy rounded-sm cursor-pointer border border-gray-200" onclick="updateColorInfo('Vinho Tinto', 'Um tom profundo e luxuoso que substitui o preto como base neutra para a noite.')"></div>
+                            <div class="color-swatch bg-fw-olive rounded-sm cursor-pointer border border-gray-200" onclick="updateColorInfo('Verde Musgo', 'Traz a natureza para o ambiente urbano. Excelente para alfaiataria pesada e outerwear.')"></div>
+                            <div class="color-swatch bg-fw-charcoal rounded-sm cursor-pointer border border-gray-200" onclick="updateColorInfo('Cinza Chumbo', 'O novo clássico. Impecável em conjuntos de lã fria e tricôs.')"></div>
+                            <div class="color-swatch bg-fw-taupe rounded-sm cursor-pointer border border-gray-200" onclick="updateColorInfo('Taupe / Fendi', 'A transição perfeita. Um neutro quente que ilumina as composições de inverno.')"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-serif text-xl mb-4">Key Items (Apostas da Estação)</h4>
+                        <div id="season-items" class="grid grid-cols-2 gap-4">
+                            <div class="bg-luxury-bg p-4 border border-luxury-border">
+                                <span class="block text-sm font-bold uppercase tracking-wide mb-1">Maxi Coat</span>
+                                <span class="text-sm text-gray-600">Casacos alongados até o tornozelo em lã estruturada.</span>
+                            </div>
+                            <div class="bg-luxury-bg p-4 border border-luxury-border">
+                                <span class="block text-sm font-bold uppercase tracking-wide mb-1">Pantalona Plissada</span>
+                                <span class="text-sm text-gray-600">Fluidez no inverno através de tecidos pesados com movimento.</span>
+                            </div>
+                            <div class="bg-luxury-bg p-4 border border-luxury-border">
+                                <span class="block text-sm font-bold uppercase tracking-wide mb-1">Gola Rolê Ampla</span>
+                                <span class="text-sm text-gray-600">Blusas em cashmere com golas exageradas e confortáveis.</span>
+                            </div>
+                            <div class="bg-luxury-bg p-4 border border-luxury-border">
+                                <span class="block text-sm font-bold uppercase tracking-wide mb-1">Bota Montaria 2.0</span>
+                                <span class="text-sm text-gray-600">Sola tratorada sutil e cano reto em couro fosco.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="insights" class="py-20 bg-luxury-bg border-t border-luxury-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-4xl mb-4">Inteligência de Mercado & Dados</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Compreendendo a alocação de recursos e o comportamento de compra da cliente AA. Estes gráficos ilustram onde o ticket médio será concentrado ao longo do ano e a evolução do perfil de consumo.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+
+                <div class="bg-white p-8 border border-luxury-border shadow-sm">
+                    <h3 class="font-serif text-2xl mb-2">Share de Investimento (Guarda-roupa)</h3>
+                    <p class="text-sm text-gray-500 mb-6">Projeção de distribuição do ticket médio em categorias de produto para o público de alta renda em 2026.</p>
+                    <div class="chart-container flex items-center justify-center">
+                        <canvas id="investmentChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-sm text-gray-600 border-t border-gray-100 pt-4">
+                        <strong class="text-luxury-text">Insight:</strong> A Alfaiataria Casualizada domina a intenção de compra, substituindo a necessidade de roupas estritamente corporativas. O Resort Wear ganha tração contínua ao longo de todo o ano, refletindo um estilo de vida de múltiplas viagens.
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 border border-luxury-border shadow-sm">
+                    <h3 class="font-serif text-2xl mb-2">Evolução dos Direcionadores de Compra</h3>
+                    <p class="text-sm text-gray-500 mb-6">Análise comparativa da importância de fatores decisivos de compra ao longo dos trimestres de 2026.</p>
+                    <div class="chart-container">
+                        <canvas id="driversChart"></canvas>
+                    </div>
+                    <div class="mt-6 text-sm text-gray-600 border-t border-gray-100 pt-4">
+                        <strong class="text-luxury-text">Insight:</strong> A "Qualidade/Durabilidade" ultrapassa consistentemente o "Apelo da Logomarca". A cliente premium busca exclusividade na matéria-prima e na modelagem, consolidando o <em>Quiet Luxury</em> não como tendência, mas como padrão de consumo.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW AI BUYER SECTION -->
+    <section id="ai-buyer" class="py-24 bg-white border-t border-luxury-border">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="font-serif text-4xl mb-4 text-luxury-text">Assistente de Compras & Vitrinismo IA ✨</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    Descreva o perfil da sua cliente foco este mês ou um evento local importante (ex: festas de fim de ano, casamentos na praia, clima de meia-estação). A Inteligência Artificial irá sugerir quais peças do Dossiê 2026 deve comprar para o stock e como montar a vitrine para atrair o público de Jardim Camburi.
+                </p>
+            </div>
+
+            <div class="bg-luxury-bg p-8 md:p-10 border border-luxury-border shadow-sm">
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <input type="text" id="occasion-input"
+                           placeholder="Ex: Clientes procurando looks para o verão intenso de Vitória..."
+                           class="flex-1 p-4 border border-luxury-border bg-white focus:outline-none focus:border-luxury-accent font-sans text-luxury-text"
+                           onkeypress="if(event.key === 'Enter') generateBuyerAdvice()">
+                    <button id="ai-btn" onclick="generateBuyerAdvice()"
+                            class="px-8 py-4 bg-luxury-text text-white font-medium tracking-widest uppercase text-sm hover:bg-luxury-accent transition-colors flex items-center justify-center min-w-[200px]">
+                        <span>Gerar Estratégia ✨</span>
+                    </button>
+                </div>
+
+                <div id="ai-output-container" class="hidden mt-8 p-6 bg-white border border-gray-200 border-l-4 border-l-luxury-accent min-h-[150px]">
+                    <h4 class="font-serif text-lg mb-3 text-luxury-accent">Recomendação de Compras 2026:</h4>
+                    <div id="ai-loading" class="hidden flex flex-col gap-3 animate-pulse">
+                        <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div class="h-4 bg-gray-200 rounded w-full"></div>
+                        <div class="h-4 bg-gray-200 rounded w-5/6"></div>
+                    </div>
+                    <div id="ai-result" class="text-gray-700 font-sans leading-relaxed"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#1A1A1A] text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="font-serif text-2xl mb-4 tracking-widest">L'Édition</h2>
+            <p class="text-gray-400 text-sm mb-8">Dossiê Estratégico de Moda & Comportamento 2026</p>
+            <div class="flex justify-center space-x-6 text-sm text-gray-500">
+                <span>&copy; 2026 Análise de Luxo</span>
+                <span>Uso Exclusivo Corporativo</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const seasonData = {
+            fw: {
+                title: "O Refúgio Urbano",
+                titleColor: "text-fw-burgundy",
+                subtitle: "Outono / Inverno 2026",
+                desc: "Para o Inverno 2026, a mulher AA busca um \"casulo sofisticado\". A ênfase está na sobreposição inteligente (layering) utilizando materiais de altíssimo padrão. A inspiração vem das raízes equestres e do country club chic, fundidos com a praticidade metropolitana.",
+                materials: [
+                    "Cashmere double-face de alta gramatura",
+                    "Couro pelica super macio (nappa leather)",
+                    "Tweed estruturado com fios metalizados discretos",
+                    "Tricôs de tramas espessas (Chunky knits)"
+                ],
+                colors: [
+                    { bg: "bg-fw-burgundy", name: "Vinho Tinto", desc: "Um tom profundo e luxuoso que substitui o preto como base neutra para a noite." },
+                    { bg: "bg-fw-olive", name: "Verde Musgo", desc: "Traz a natureza para o ambiente urbano. Excelente para alfaiataria pesada e outerwear." },
+                    { bg: "bg-fw-charcoal", name: "Cinza Chumbo", desc: "O novo clássico. Impecável em conjuntos de lã fria e tricôs." },
+                    { bg: "bg-fw-taupe", name: "Taupe / Fendi", desc: "A transição perfeita. Um neutro quente que ilumina as composições de inverno." }
+                ],
+                items: [
+                    { title: "Maxi Coat", desc: "Casacos alongados até o tornozelo em lã estruturada." },
+                    { title: "Pantalona Plissada", desc: "Fluidez no inverno através de tecidos pesados com movimento." },
+                    { title: "Gola Rolê Ampla", desc: "Blusas em cashmere com golas exageradas e confortáveis." },
+                    { title: "Bota Montaria 2.0", desc: "Sola tratorada sutil e cano reto em couro fosco." }
+                ]
+            },
+            ss: {
+                title: "Brisa Balnear",
+                titleColor: "text-ss-cerulean",
+                subtitle: "Primavera / Verão 2026/27",
+                desc: "A transição para o calor traz um respiro de otimismo contido. O 'Resort Chic' domina, onde a fronteira entre a roupa de férias na Riviera e o vestuário urbano de verão desaparece. A ênfase é na pele à mostra com extrema sofisticação.",
+                materials: [
+                    "Linho puro com acabamento anti-amassamento",
+                    "Seda rústica e organza texturizada",
+                    "Algodão egípcio percal",
+                    "Rendas manuais e macramê de fios finos"
+                ],
+                colors: [
+                    { bg: "bg-ss-cerulean", name: "Azul Cerúleo", desc: "Refrescante e calmo, evoca o céu aberto e as paisagens mediterrâneas." },
+                    { bg: "bg-ss-butter", name: "Amarelo Manteiga", desc: "O novo branco do verão. Ilumina qualquer tom de pele com elegância." },
+                    { bg: "bg-ss-sand", name: "Areia", desc: "A base de toda coleção resort. Neutro, natural e altamente combinável." },
+                    { bg: "bg-ss-terracotta", name: "Terracota", desc: "O toque de calor e energia para o pôr do sol, substituindo vermelhos intensos." }
+                ],
+                items: [
+                    { title: "Vestido Túnica", desc: "Cortes retos em linho com fendas laterais profundas." },
+                    { title: "Conjuntos Pijama Chic", desc: "Calça e camisa de manga curta em seda idêntica para o dia a dia." },
+                    { title: "Bermuda de Alfaiataria", desc: "Comprimento no joelho, substituindo as minissaias no ambiente urbano." },
+                    { title: "Acessórios Naturais", desc: "Bolsas de palha estruturadas com acabamentos em couro." }
+                ]
+            }
+        };
+
+        function updateColorInfo(name, desc) {
+            document.getElementById('color-name-display').innerHTML = `<span class="text-luxury-text font-bold">${name}:</span> ${desc}`;
+        }
+
+        function switchSeason(season) {
+            const btnFw = document.getElementById('btn-fw');
+            const btnSs = document.getElementById('btn-ss');
+            const content = document.getElementById('season-content');
+
+            // UI Button states
+            if (season === 'fw') {
+                btnFw.className = "px-8 py-3 text-sm font-medium tracking-wide uppercase border border-luxury-text bg-luxury-text text-white transition-colors";
+                btnSs.className = "px-8 py-3 text-sm font-medium tracking-wide uppercase border border-luxury-text bg-transparent text-luxury-text hover:bg-gray-50 transition-colors";
+            } else {
+                btnSs.className = "px-8 py-3 text-sm font-medium tracking-wide uppercase border border-luxury-text bg-luxury-text text-white transition-colors";
+                btnFw.className = "px-8 py-3 text-sm font-medium tracking-wide uppercase border border-luxury-text bg-transparent text-luxury-text hover:bg-gray-50 transition-colors";
+            }
+
+            // Animate transition
+            content.classList.remove('fade-in');
+            void content.offsetWidth;
+            content.classList.add('fade-in');
+
+            const data = seasonData[season];
+
+            document.getElementById('season-title').textContent = data.title;
+            document.getElementById('season-title').className = `font-serif text-3xl mb-2 ${data.titleColor}`;
+            document.getElementById('season-subtitle').textContent = data.subtitle;
+            document.getElementById('season-desc').textContent = data.desc;
+
+            // Materials
+            const materialsList = document.getElementById('season-materials');
+            materialsList.innerHTML = '';
+            data.materials.forEach(mat => {
+                materialsList.innerHTML += `<li class="flex items-start"><span class="text-luxury-accent mr-2">&#9679;</span> ${mat}</li>`;
+            });
+
+            // Colors
+            const colorsDiv = document.getElementById('season-colors');
+            colorsDiv.innerHTML = '';
+            data.colors.forEach(col => {
+                colorsDiv.innerHTML += `<div class="color-swatch ${col.bg} rounded-sm cursor-pointer border border-gray-200" onclick="updateColorInfo('${col.name}', '${col.desc}')"></div>`;
+            });
+            document.getElementById('color-name-display').innerHTML = '<span class="text-sm font-sans text-gray-500 italic">Clique em uma cor para detalhes</span>';
+
+            // Items
+            const itemsDiv = document.getElementById('season-items');
+            itemsDiv.innerHTML = '';
+            data.items.forEach(item => {
+                itemsDiv.innerHTML += `
+                    <div class="bg-luxury-bg p-4 border border-luxury-border">
+                        <span class="block text-sm font-bold uppercase tracking-wide mb-1">${item.title}</span>
+                        <span class="text-sm text-gray-600">${item.desc}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chart 1: Investment Doughnut
+            const ctxInv = document.getElementById('investmentChart').getContext('2d');
+            new Chart(ctxInv, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Alfaiataria Casual', 'Resort / Lazer', 'Acessórios (Couro)', 'Tricot & Malharia', 'Festa / Eventos'],
+                    datasets: [{
+                        data: [35, 25, 20, 12, 8],
+                        backgroundColor: [
+                            '#8C7A6B', // luxury-accent
+                            '#7D9CB3', // ss-cerulean
+                            '#5C2C35', // fw-burgundy
+                            '#B8A99A', // fw-taupe
+                            '#E5E0D8'  // luxury-border
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                font: { family: 'Lato', size: 12 },
+                                color: '#2C2A29',
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#2C2A29',
+                            titleFont: { family: 'Lato' },
+                            bodyFont: { family: 'Lato' },
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': ' + context.parsed + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Drivers Line Chart
+            const ctxDri = document.getElementById('driversChart').getContext('2d');
+            new Chart(ctxDri, {
+                type: 'line',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    datasets: [
+                        {
+                            label: 'Qualidade & Tecido',
+                            data: [80, 85, 88, 92],
+                            borderColor: '#8C7A6B',
+                            backgroundColor: '#8C7A6B',
+                            tension: 0.4,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Conforto',
+                            data: [75, 78, 80, 85],
+                            borderColor: '#D9C8B4',
+                            backgroundColor: '#D9C8B4',
+                            tension: 0.4,
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Logomania / Marca',
+                            data: [45, 40, 35, 30],
+                            borderColor: '#C46D5E',
+                            backgroundColor: '#C46D5E',
+                            tension: 0.4,
+                            borderWidth: 2,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: { color: '#E5E0D8' },
+                            ticks: { font: { family: 'Lato' }, color: '#8C7A6B' },
+                            title: { display: true, text: 'Índice de Importância', font: { family: 'Lato' } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Lato' }, color: '#8C7A6B' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { family: 'Lato', size: 12 },
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#2C2A29',
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        });
+
+        // --- GEMINI API INTEGRATION ---
+        const apiKey = "";
+
+        // Exponential backoff retry logic
+        async function fetchWithRetry(url, options, retries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(`HTTP error! status: ${response.status}`, { cause: errorData });
+                    }
+                    return await response.json();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Exponential backoff (1s, 2s, 4s, 8s, 16s)
+                }
+            }
+        }
+
+        async function generateBuyerAdvice() {
+            const inputEl = document.getElementById('occasion-input');
+            const occasion = inputEl.value.trim();
+
+            if (!occasion) return;
+
+            const btn = document.getElementById('ai-btn');
+            const outputContainer = document.getElementById('ai-output-container');
+            const loadingEl = document.getElementById('ai-loading');
+            const resultEl = document.getElementById('ai-result');
+
+            // Set loading state
+            btn.disabled = true;
+            btn.innerHTML = '<span class="animate-pulse">A Analisar...</span>';
+            outputContainer.classList.remove('hidden');
+            loadingEl.classList.remove('hidden');
+            resultEl.innerHTML = '';
+            resultEl.classList.add('hidden');
+
+            const systemPrompt = `Você é um estrategista de varejo de luxo e 'fashion buyer' sênior. Sua cliente é a dona de uma boutique premium localizada em Jardim Camburi, Vitória - Espírito Santo (CEP 29090-120). O público dela é classe AA, sofisticado, mas vive em uma cidade litorânea de clima quente a maior parte do ano.
+Sua missão é dizer a ela O QUE COMPRAR para o estoque e COMO MONTAR A VITRINE baseada no cenário que ela descrever.
+Você DEVE utilizar APENAS as tendências do Dossiê 2026:
+- OUTONO/INVERNO ("O Refúgio Urbano"): Cashmere double-face, Couro pelica, Tweed, Maxi Coats, Pantalonas Plissadas, Gola Rolê Ampla, Bota Montaria. Cores: Vinho Tinto, Verde Musgo, Cinza Chumbo, Taupe. (Lembre-se de adaptar essas peças mais pesadas para a realidade do inverno capixaba, que é mais ameno).
+- PRIMAVERA/VERÃO ("Brisa Balnear"): Resort Chic, Linho puro, Seda rústica, Algodão egípcio, Vestidos Túnica, Conjuntos Pijama Chic, Bermudas de Alfaiataria. Cores: Azul Cerúleo, Amarelo Manteiga, Areia, Terracota.
+
+Estruture sua resposta assim:
+1. **Peças-Chave para o Estoque:** (Liste 3 ou 4 itens específicos do dossiê adaptados ao clima local e justifique por que vão vender bem).
+2. **Sugestão de Vitrine:** (Descreva como expor essas peças na vitrine da loja em Jardim Camburi para chamar a atenção do público passante).
+3. **Dica de Venda:** (Um conselho curto de como a equipe de vendas deve argumentar sobre o material/tendência).
+
+Responda em Português do Brasil de forma encorajadora, profissional e voltada para o business (vendas e conversão).`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: `Cenário / Perfil da Cliente: ${occasion}` }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                const result = await fetchWithRetry(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text || "Lamentamos, não foi possível gerar uma sugestão neste momento.";
+
+                // Format basic markdown to HTML
+                const formattedHtml = textResponse
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/\n/g, '<br>');
+
+                resultEl.innerHTML = formattedHtml;
+
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                resultEl.innerHTML = '<span class="text-fw-burgundy font-medium">Não foi possível processar a curadoria. Verifique se o ambiente de execução tem acesso à API ou tente novamente mais tarde.</span>';
+            } finally {
+                // Restore state
+                btn.disabled = false;
+                btn.innerHTML = '<span>Gerar Estratégia ✨</span>';
+                loadingEl.classList.add('hidden');
+                resultEl.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
