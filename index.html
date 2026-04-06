@@ -587,7 +587,7 @@ Estruture sua resposta assim:
 
 Responda em Português do Brasil de forma encorajadora, profissional e voltada para o business (vendas e conversão).`;
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: `Cenário / Perfil da Cliente: ${occasion}` }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] }
